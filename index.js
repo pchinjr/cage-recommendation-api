@@ -1,13 +1,16 @@
 'use strict';
+const config = require('./config.json');
 const http = require('http');
-const host = 'api.themoviedb.org/3';
-const movieDbApiKey = '[YOUR_API_KEY]';
+
 exports.movieWebhook = (req, res) => {
-  // Get the city and date from the request
+  // Get the genre from the request
   let genre = req.body.result.parameters['genre'];
-  // Call the weather API
+
+  //find genre id from request 
+  
+  // Call the moviedb API
   callMovieApi(genre).then((output) => {
-    // Return the results of the weather API to Dialogflow
+    // Return the results of the movie API to Dialogflow
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ 'speech': output, 'displayText': output }));
   }).catch((error) => {
@@ -16,28 +19,35 @@ exports.movieWebhook = (req, res) => {
     res.send(JSON.stringify({ 'speech': error, 'displayText': error }));
   });
 };
+
 function callMovieApi (genre) {
   return new Promise((resolve, reject) => {
-    // Create the path for the HTTP request to get the weather
-    let path = '/discover/movie?api_key=' + movieDbApiKey + '&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_genres=80&with_people=2963';
-    console.log('API Request: ' + host + path);
-    // Make the HTTP request to get the weather
-    http.get({host: host, path: path}, (res) => {
-      let body = ''; // var to store the response chunks
-      res.on('data', (d) => { body += d; }); // store each response chunk
-      res.on('end', () => {
-        // After all the data has been received parse the JSON for desired data
-        let response = JSON.parse(body);
-        let movieTitle = response.results[0].title;
-        // Create response
-        let output = 'You should watch ${movieTitle}';
-        // Resolve the promise with the output text
-        console.log(output);
+    
+    var options = {
+      "method": "GET",
+      "hostname": "api.themoviedb.org",
+      "port": null,
+      "path": `/3/discover/movie?api_key=${config.MOVIE_DB_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_genres=80&with_people=2963`,
+      "headers": {
+        "cache-control": "no-cache",
+        "postman-token": "d88c8b42-9f0e-6308-d6cc-124386cca508"
+      }
+    };
+    var req = http.request(options, function (res) {
+      var chunks = [];
+    
+      res.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+    
+      res.on("end", function () {
+        var body = Buffer.concat(chunks);
+        var jason = JSON.parse(body);
+        var output = jason.results[0].title;
         resolve(output);
       });
-      res.on('error', (error) => {
-        reject(error);
-      });
     });
+    req.end();
+
   });
 }
