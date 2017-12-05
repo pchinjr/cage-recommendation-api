@@ -24,7 +24,7 @@ exports.movieWebhook = (req, res) => {
 
 function callMovieApi (genreId) {
   return new Promise((resolve, reject) => {
-    mdb.discoverMovie({ "with_genres": 80, "with_people" : 2963 }, (err, res) => {
+    mdb.discoverMovie({ "with_genres": genreId, "with_people" : 2963 }, (err, res) => {
       resolve( `You should watch ${res.results[0].title}`);
     })
   });
