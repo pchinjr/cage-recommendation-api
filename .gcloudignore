@@ -12,5 +12,6 @@
 # below:
 .git
 .gitignore
+readme.md
 
 node_modules
