@@ -1,12 +1,12 @@
 'use strict';
 const config = require('./config.json');
 const genreList = require('./genreList.json');
-const http = require('http');
+const mdb = require('moviedb')(config.MOVIE_DB_KEY);
 
 exports.movieWebhook = (req, res) => {
-  // Get the genre from the request
+  // Get the genre parameter from the request
   let genre = req.body.result.parameters['genre'];
-  //find genre id from request 
+  //find genre id
   const arr = genreList.genres;
   let obj = arr.find(function (obj) { return obj.name === genre; });
   let genreId = obj.id;
@@ -24,32 +24,8 @@ exports.movieWebhook = (req, res) => {
 
 function callMovieApi (genreId) {
   return new Promise((resolve, reject) => {
-    console.log(genreId)
-    var options = {
-      "method": "GET",
-      "hostname": "api.themoviedb.org",
-      "port": null,
-      "path": `/3/discover/movie?api_key=${config.MOVIE_DB_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_genres=${genreId}&with_people=2963`,
-      "headers": {
-        "cache-control": "no-cache",
-        "postman-token": "d88c8b42-9f0e-6308-d6cc-124386cca508"
-      }
-    };
-    var req = http.request(options, function (res) {
-      var chunks = [];
-
-      res.on("data", function (chunk) {
-        chunks.push(chunk);
-      });
-    
-      res.on("end", function () {
-        var body = Buffer.concat(chunks);
-        var jason = JSON.parse(body);
-        var output = `You should watch ${jason.results[0].title}`;
-        resolve(output);
-      });
-    });
-    req.end();
-
+    mdb.discoverMovie({ "with_genres": 80, "with_people" : 2963 }, (err, res) => {
+      resolve( `You should watch ${res.results[0].title}`);
+    })
   });
-}
+};
