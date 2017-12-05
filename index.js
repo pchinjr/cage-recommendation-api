@@ -45,8 +45,7 @@ function callMovieApi (genreId) {
       res.on("end", function () {
         var body = Buffer.concat(chunks);
         var jason = JSON.parse(body);
-        console.log(jason);
-        var output = jason.results[0].title;
+        var output = `You should watch ${jason.results[0].title}`;
         resolve(output);
       });
     });
