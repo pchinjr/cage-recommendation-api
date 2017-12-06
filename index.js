@@ -13,8 +13,20 @@ exports.movieWebhook = (req, res) => {
   // Call the moviedb API
   callMovieApi(genreId).then((output) => {
     // Return the results of the movie API to Dialogflow
+    console.log(output.results[0]);
+    const outputResults = output.results[0];
     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ 'speech': output, 'displayText': output }));
+    res.send( JSON.stringify({ 
+        'speech': outputResults.title, 
+        'displayText': outputResults.title, 
+        'contextOut' : [{
+          'name': 'costars', 
+          'lifespan': 5, 
+          'parameters': {
+            'movieId' : outputResults.id
+            } 
+          }] 
+    }));
   }).catch((error) => {
     // If there is an error let the user know
     res.setHeader('Content-Type', 'application/json');
@@ -24,8 +36,10 @@ exports.movieWebhook = (req, res) => {
 
 function callMovieApi (genreId) {
   return new Promise((resolve, reject) => {
+    //2963 is the id of one true god
     mdb.discoverMovie({ "with_genres": genreId, "with_people" : 2963 }, (err, res) => {
-      resolve( `You should watch ${res.results[0].title}`);
+      //let output = res.results[0].title;
+      resolve(res);
     })
   });
 };
