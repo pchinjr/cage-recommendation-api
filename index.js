@@ -13,17 +13,16 @@ exports.movieWebhook = (req, res) => {
   // Call the moviedb API
   callMovieApi(genreId).then((output) => {
     // Return the results of the movie API to Dialogflow
-    console.log(output.results[0]);
-    const outputResults = output.results[0];
+    const result = output.results[0];
     res.setHeader('Content-Type', 'application/json');
     res.send( JSON.stringify({ 
-        'speech': outputResults.title, 
-        'displayText': outputResults.title, 
+        'speech': `you should watch ${result.title} http://image.tmdb.org/t/p/w185${result.poster_path}`, 
+        'displayText': `you should watch ${result.title} http://image.tmdb.org/t/p/w185${result.poster_path}`, 
         'contextOut' : [{
           'name': 'costars', 
           'lifespan': 5, 
           'parameters': {
-            'movieId' : outputResults.id
+            'movieId' : result.id
             } 
           }] 
     }));
