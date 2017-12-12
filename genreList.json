@@ -78,3 +78,8 @@
       }
   ]
 }
+
+genre = {
+    western : id,
+    action: id  
+}

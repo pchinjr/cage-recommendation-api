@@ -1,6 +1,7 @@
 'use strict';
 const config = require('./config.json');
 const genreList = require('./genreList.json');
+const { findGenre, findCostars, findDescription } = require('./actions');
 const mdb = require('moviedb')(config.MOVIE_DB_KEY);
 
 exports.movieWebhook = (req, res) => {
@@ -8,7 +9,7 @@ exports.movieWebhook = (req, res) => {
   let genre = req.body.result.parameters['genre'];
   //find genre id
   const arr = genreList.genres;
-  let obj = arr.find(function (obj) { return obj.name === genre; });
+  let obj = arr.find(function (obj) { return obj.name === genre; }); // horror.id fix this shit 
   let genreId = obj.id;
   // Call the moviedb API
   callMovieApi(genreId).then((output) => {
