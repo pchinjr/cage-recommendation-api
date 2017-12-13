@@ -46,7 +46,8 @@ function processRequest(req) {
            reject(err)
          };
          const cast = res.cast;
-         resolve( buildResponse(`The cast includes ${cast[1].name}`) );
+         var notCageCast = cast.filter( el => { return el.name !== 'Nicolas Cage'} ).map( el => el.name ).reduce( (first, next) => { return `${first}, ${next}` } );
+         resolve( buildResponse(`The cast includes ${notCageCast}`) );
         })
       }
     }
