@@ -5,7 +5,6 @@ const mdb = require('moviedb')(config.MOVIE_DB_KEY);
 
 exports.movieWebhook = (req, res) => {
   processRequest(req).then((output) => {
-    console.log(`3 ${output}`);
     res.setHeader('Content-Type', 'application/json');
     res.send(output);
   }).catch((error) => {
@@ -28,7 +27,8 @@ function processRequest(req) {
           if (err) {
             reject(err)
           };
-          const movie = res.results[0];
+          const random = Math.floor(Math.random()*res.results.length)
+          const movie = res.results[random];
           const contextOutput = [{
             'name': 'costars',
             'lifespan' : 5,
