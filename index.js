@@ -36,7 +36,20 @@ function processRequest(req) {
               'movieId' : movie.id
             }
           }]; 
-          resolve( buildResponse(`You should watch ${movie.title} http://image.tmdb.org/t/p/w185${movie.poster_path}`, contextOutput) );
+          const slack_message = {
+            "text" : `You should watch ${movie.title}`,
+            "attachments" : [
+              {
+                "title": movie.title,
+                "image_url": `http://image.tmdb.org/t/p/w185${movie.poster_path}`
+              },
+              {
+                "title": "Synopsis",
+                "text": movie.overview
+            },
+            ]
+          }
+          resolve( buildResponse(`You should watch ${movie.title} http://image.tmdb.org/t/p/w185${movie.poster_path}`, contextOutput, slack_message) );
         });
       },
       'input.costars' : () => {
@@ -47,21 +60,30 @@ function processRequest(req) {
          };
          const cast = res.cast;
          var notCageCast = cast
-         .filter( el => { return el.name !== 'Nicolas Cage'} )
-         .map( el => el.name )
-         .reduce( (memo, value, index, array) => { 
-           //first item
-           if(index === 0) {
-             return value
-           }
-           //last item
-           if(index === array.length-1) {
-             return `${memo}, and ${value}`;
-           }
-           //default
-           return `${memo}, ${value}` }, '');
+          .filter( el => { return el.name !== 'Nicolas Cage'} )
+          .map( el => el.name )
+          .reduce( (memo, value, index, array) => { 
+            //first item
+            if(index === 0) { return value}
+            //last item
+            if(index === array.length-1) {return `${memo}, and ${value}`}
+            //default
+            return `${memo}, ${value}` 
+          }, '');
 
-         resolve( buildResponse(`The cast includes ${notCageCast}`) );
+          const contextOutput = [{
+            'name': 'costars',
+            'lifespan' : 5,
+            'parameters' : {
+              'data' : 'default'
+            }
+          }];
+
+          const slack_message = {
+            "text" : `The cast includes ${notCageCast}`,
+          }
+
+         resolve( buildResponse(`The cast includes ${notCageCast}`, contextOutput, slack_message) );
         })
       }
     }
@@ -69,11 +91,12 @@ function processRequest(req) {
     //run the proper action handler
     actionHandlers[action]();
   
-    function buildResponse(responseToUser, contextOutput) {
+    function buildResponse(responseToUser, contextOutput, slack_message) {
       return { 
         'speech' : responseToUser,
         'displayText' : responseToUser,
         'contextOut' : contextOutput,
+        'data' : {"slack": slack_message},
       }
     }  
   });
