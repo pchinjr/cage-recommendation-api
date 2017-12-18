@@ -4,7 +4,7 @@ provider:
   name: google
   runtime: nodejs
   project: my-movies-d5a83
-  credentials: ~/.gcloud/keyfile.json
+  credentials: ~/.gcloud/my-movies-5db86822411f.json
 
 plugins:
   - serverless-google-cloudfunctions
